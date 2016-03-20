@@ -1,20 +1,21 @@
-# accounting-backend
-simple accounting backend
+# pizarra
+One big web pizarra (board)
 
 # Usage
 ```sh
-$ npm install accounting-backend
+$ npm install pizarra
+$ npm start
 ```
 
 
 ![designing](https://img.shields.io/badge/stability-designing-red.svg)
-[![npm-version](https://img.shields.io/npm/v/accounting-backend.svg)](https://npmjs.org/package/accounting-backend)
-[![downloads](https://img.shields.io/npm/dm/accounting-backend.svg)](https://npmjs.org/package/accounting-backend)
-[![build](https://img.shields.io/travis/emilioplatzer/accounting-backend/master.svg)](https://travis-ci.org/emilioplatzer/accounting-backend)
-[![coverage](https://img.shields.io/coveralls/emilioplatzer/accounting-backend/master.svg)](https://coveralls.io/r/emilioplatzer/accounting-backend)
-[![climate](https://img.shields.io/codeclimate/github/emilioplatzer/accounting-backend.svg)](https://codeclimate.com/github/emilioplatzer/accounting-backend)
-[![dependencies](https://img.shields.io/david/emilioplatzer/accounting-backend.svg)](https://david-dm.org/emilioplatzer/accounting-backend)
-[![qa-control](http://codenautas.com/github/emilioplatzer/accounting-backend.svg)](http://codenautas.com/github/emilioplatzer/accounting-backend)
+[![npm-version](https://img.shields.io/npm/v/pizarra.svg)](https://npmjs.org/package/pizarra)
+[![downloads](https://img.shields.io/npm/dm/pizarra.svg)](https://npmjs.org/package/pizarra)
+[![build](https://img.shields.io/travis/emilioplatzer/pizarra/master.svg)](https://travis-ci.org/emilioplatzer/pizarra)
+[![coverage](https://img.shields.io/coveralls/emilioplatzer/pizarra/master.svg)](https://coveralls.io/r/emilioplatzer/pizarra)
+[![climate](https://img.shields.io/codeclimate/github/emilioplatzer/pizarra.svg)](https://codeclimate.com/github/emilioplatzer/pizarra)
+[![dependencies](https://img.shields.io/david/emilioplatzer/pizarra.svg)](https://david-dm.org/emilioplatzer/pizarra)
+[![qa-control](http://codenautas.com/github/emilioplatzer/pizarra.svg)](http://codenautas.com/github/emilioplatzer/pizarra)
 
 
 

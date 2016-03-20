@@ -1,0 +1,19 @@
+server:
+  port: 52749
+  base-url: /pandora
+db:
+  motor: postgresql
+  host: localhost
+  database: pandora_db
+  schema: pan
+  user: pandora_user
+  password: pandora_3323948812bdz
+login:
+  table: users
+  userFieldName: username
+  passFieldName: md5pass
+  infoFieldList: [username, rol]
+  plus:
+    unloggedPath: client/unlogged
+    loginPagePath: client/unlogged/login
+    successRedirect: /

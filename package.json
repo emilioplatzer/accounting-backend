@@ -2,14 +2,21 @@
   "name": "accounting-backend",
   "description": "simple accounting backend",
   "version": "0.0.1",
-  "author": "EmilioPlatzer <emilioplatzer@gmail.com>",
+  "author": "Emilio Platzer <emilioplatzer@gmail.com>",
   "license": "MIT",
   "repository": "emilioplatzer/accounting-backend",
-  "main": "index.js",
+  "main": "server/accounting-server.js",
   "dependencies": {
-    "fs-extra": "0.26.5",
+    "fs-extra": "0.26.6",
     "fs-promise": "0.5.0",
-    "best-promise": "0.2.4"
+    "jade": "~1.11.0",
+    "read-yaml-promise": "1.0.2",
+    "stylus": "~0.54.2",
+
+    "backend-plus": "0.0.4",
+    "best-promise": "0.2.4",
+    "extension-serve-static": "0.1.6",
+    "mini-tools": "0.2.3"
   },
   "devDependencies": {
     "expect.js": "~0.3.1",
@@ -17,18 +24,19 @@
     "mocha": "~2.4.5"
   },
   "engines": {
-    "node": ">= 0.12"
+    "node": ">= 0.12.0"
   },
   "scripts": {
     "test": "mocha --reporter spec --bail --check-leaks test/",
     "test-ci": "istanbul cover node_modules/mocha/bin/_mocha --report lcovonly -- --reporter spec --check-leaks test/",
     "test-cov": "istanbul cover node_modules/mocha/bin/_mocha -- --reporter dot --check-leaks test/",
-    "start": "node example/server.js"
+    "start": "node server/accounting-server.js"
   },
   "jshintConfig": {
     "asi": false,
     "forin": true,
-    "curly": true
+    "curly": true,
+    "esversion": 6
   },
   "eslintConfig": {
     "env": {
@@ -38,6 +46,9 @@
       "strict": 0,
       "no-console": 1,
       "no-unused-vars": 1
+    },
+    "parserOptions": {
+      "ecmaVersion": 6
     }
   },
   "qa-control": {
@@ -45,6 +56,6 @@
     "coverage": 90,
     "run-in": "server",
     "stability": "extending",
-    "type": "cmd-tool"
+    "type": "app"
   }
 }
