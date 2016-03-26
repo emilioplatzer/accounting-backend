@@ -30,13 +30,34 @@ var pantallas = {
         central.innerHTML="";
         central.appendChild(html.div([
             html.h1("menú principal"),
-            lineaMenu('mod', '#agregarAsiento', 'crear nuevo asiento'),
+            lineaMenu('mod', '#agregarAsiento', 'Crear nuevo asiento'),
             lineaMenu('lis', '#reporte', 'Saldos del libro mayor'),
             lineaMenu('mod', '#agregarAsiento', 'actores'),
             lineaMenu('lis', '#reporte', 'Saldos de cuentas corrientes'),
             lineaMenu('mod', '#reporte', 'Plan de producción'),
             lineaMenu('lis', '#reporte', 'Inventario'),
             lineaMenu('red', './login', 'Salir (logout)'),
+        ]).create());
+    },
+    agregarAsiento: function(){
+        central.innerHTML="";
+        central.appendChild(html.div([
+            html.pre({id:"result"}, "cargando...")
+        ]).create());
+        AjaxBestPromise.get({
+            url:'structure/asiento',
+            data:{}
+        }).then(JSON.parse).then(function(estructura){
+            result.innerText='mostrando...';
+            result.innerText=JSON.stringify(estructura,null,' ');
+        },function(err){
+            result.innerText=err;
+        });
+    },
+    reporte: function(){
+        central.innerHTML="";
+        central.appendChild(html.div([
+            html.pre("cargando...")
         ]).create());
     }
 }
