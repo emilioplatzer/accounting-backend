@@ -1,12 +1,15 @@
 {
   "name": "accounting-backend",
   "description": "simple accounting backend",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Emilio Platzer <emilioplatzer@gmail.com>",
   "license": "MIT",
   "repository": "emilioplatzer/accounting-backend",
   "main": "server/accounting-server.js",
+  "entrypoint": "server/accounting-server.js",
   "dependencies": {
+    "es6-shim": "~0.35.0",
+    "es6-transpiler": "~0.7.18",
     "fs-extra": "~0.26.7",
     "fs-promise": "~0.5.0",
     "jade": "~1.11.0",
@@ -35,7 +38,8 @@
     "test": "mocha --reporter spec --bail --check-leaks test/",
     "test-ci": "istanbul cover node_modules/mocha/bin/_mocha --report lcovonly -- --reporter spec --check-leaks test/",
     "test-cov": "istanbul cover node_modules/mocha/bin/_mocha -- --reporter dot --check-leaks test/",
-    "start": "node server/accounting-server.js"
+    "postinstall": "node node_modules/es6-transpiler/build/es5/es6toes5.js server/accounting-server.js > server-trans/accounting-server.js",
+    "start": "node triage-esV.js"
   },
   "jshintConfig": {
     "asi": false,
