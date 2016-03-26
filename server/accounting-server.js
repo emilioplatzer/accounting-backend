@@ -25,6 +25,13 @@ class AppAccounting extends backend.AppBackend{
         be.app.use('/',extensionServeStatic(this.rootPath+'client',{staticExtensions:['jpg','png','html','gif']}));
         be.app.get('/',MiniTools.serveJade(this.rootPath+'client/pandora'));
     }
+    pantallaAgregarAsiento(){
+        be.app.get('/structure/asiento', function(req,res){
+            this.readStructure('node_modules/accounting-machine/estructuras/estructura-asiento.yaml').then(function(estructura){
+                return MiniTools.serveJson(estructura)(req,res);
+            });
+        });
+    }
 }
 
 new AppAccounting().start();

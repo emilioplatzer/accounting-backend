@@ -7,16 +7,20 @@
   "repository": "emilioplatzer/accounting-backend",
   "main": "server/accounting-server.js",
   "dependencies": {
-    "fs-extra": "0.26.6",
-    "fs-promise": "0.5.0",
+    "fs-extra": "~0.26.7",
+    "fs-promise": "~0.5.0",
     "jade": "~1.11.0",
-    "read-yaml-promise": "1.0.2",
+    "read-yaml-promise": "~1.0.2",
     "stylus": "~0.54.2",
 
-    "backend-plus": "0.0.4",
-    "best-promise": "0.2.4",
-    "extension-serve-static": "0.1.6",
-    "mini-tools": "0.2.3"
+    "accounting-machine": "~0.0.2",
+    "backend-plus": "~0.0.4",
+    "best-globals": "~0.2.4",
+    "best-promise": "~0.2.4",
+    "extension-serve-static": "~0.1.6",
+    "js-to-html": "~0.9.0",
+    "mini-tools": "~0.2.3",
+    "tedede": "~0.1.0"
   },
   "devDependencies": {
     "expect.js": "~0.3.1",
