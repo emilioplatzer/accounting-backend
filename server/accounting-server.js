@@ -22,14 +22,16 @@ class AppAccounting extends backend.AppBackend{
         ]);
     }
     addLoggedServices(){
-        super.addLoggedServices();
         var be = this;
+        be.app.get('/',MiniTools.serveJade(this.rootPath+'client/pandora'));
+        super.addLoggedServices();
         var am = new (AccountingMachine.Machine)(be.config);
         be.app.use('/',extensionServeStatic(this.rootPath+'client',{staticExtensions:['jpg','png','html','gif']}));
-        be.app.get('/',MiniTools.serveJade(this.rootPath+'client/pandora'));
         be.app.get('/structure/asiento', function(req,res){
+            console.log('estructurando...');
             be.registroVacio = {};
             be.readStructure('node_modules/accounting-machine/estructuras/estructura-asiento.yaml').then(function(estructura){
+                console.log('leyo la estructura...');
                 MiniTools.serveJson(estructura)(req,res);
             }).catch(MiniTools.serveErr(req,res));
         });
@@ -53,5 +55,14 @@ class AppAccounting extends backend.AppBackend{
         });
     }
 }
+
+process.on('uncaughtException', function(err){
+  console.log("Caught exception:",err);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', function(err){
+  console.log("unhandledRejection:",err);
+});
 
 new AppAccounting().start();

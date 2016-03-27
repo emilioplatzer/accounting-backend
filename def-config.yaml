@@ -17,3 +17,4 @@ login:
     unloggedPath: client/unlogged
     loginPagePath: client/unlogged/login
     successRedirect: /
+    fileStore: true
