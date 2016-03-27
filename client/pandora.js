@@ -8,8 +8,8 @@ function Pandora(){
 var pandora = new Pandora();
 
 function resizeNow(){
-    lateral.style.height = window.innerHeight - superior.clientHeight -2 + 'px';
-    central.style.height = window.innerHeight - superior.clientHeight -2 + 'px';
+    // lateral.style.height = window.innerHeight - superior.clientHeight -2 + 'px';
+    // central.style.height = window.innerHeight - superior.clientHeight -2 + 'px';
 }
 
 function mostrar(mensaje){
@@ -23,6 +23,47 @@ function lineaMenu(tipo, href, leyenda){
             html.span(leyenda)
         ])
     ]);
+}
+
+function desplegarRegistro(estructura, formulario, titulo){
+    var filaTitulos=[];
+    var filaCeldas=[];
+    var filasMatrices=[];
+    var valores={};
+    estructura.formularios[formulario].celdas.forEach(function(celda){
+        if(celda.tipo == 'pregunta'){
+            filaTitulos.push(html.td({"class": "encabezado", title: celda.texto||''}, celda.pregunta));
+            var elemento=Tedede.bestCtrl(celda.typeInfo).create();
+            Tedede.adaptElement(elemento, celda.typeInfo);
+            if(celda.typeInfo.clase){
+                elemento.classList.add(celda.typeInfo.clase);
+            }else{
+                elemento.classList.add('edit-'+celda.variable);
+            }
+            elemento.addEventListener('update', function(){
+                valores[celda.variable] = elemento.getTypedValue();
+            });
+            filaCeldas.push(html.td([elemento]));
+        }
+        if(celda.tipo == 'matriz'){
+            filasMatrices.push(html.tr([html.td({"class": "matriz", colspan: 999}, [
+                desplegarRegistro(estructura, celda.matriz, celda.matriz)
+            ])]));
+        }
+    });
+    var filas=[
+        html.caption({"class": "caption-editable"}, titulo),
+        html.tr({"class": "fila-encabezados"}, filaTitulos),
+        html.tr({"class": "fila-editable"}, filaCeldas)
+    ].concat(filasMatrices);
+    return html.table(filas);
+}
+
+function desplegar(estructura, formulario, titulo){
+    central.innerHTML="";
+    var x=desplegarRegistro(estructura, formulario, titulo).create();
+    central.appendChild(x);
+    //central.appendChild(desplegarRegistro(estructura, formulario, titulo).create());
 }
 
 var pantallas = {
@@ -49,7 +90,7 @@ var pantallas = {
             data:{}
         }).then(JSON.parse).then(function(estructura){
             result.innerText='mostrando...';
-            result.innerText=JSON.stringify(estructura,null,' ');
+            desplegar(estructura, 'encabezado', "Crear nuevo asiento");
         },function(err){
             result.innerText=err;
         });
