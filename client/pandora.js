@@ -25,11 +25,17 @@ function lineaMenu(tipo, href, leyenda){
     ]);
 }
 
-function desplegarRegistro(estructura, formulario, titulo, matriz){
+function desplegarRegistro(almacen, estructura, formulario, titulo, matriz){
     var filaTitulos=[];
     var filaCeldas=[];
     var filasMatrices=[];
     var valores={};
+    if(matriz || almacen[formulario] instanceof Array){
+        almacen[formulario]=almacen[formulario]||[];
+        almacen[formulario].push(valores);
+    }else{
+        almacen[formulario]=valores;
+    }
     var puedoAgregarFila=!!matriz;
     estructura.formularios[formulario].celdas.forEach(function(celda){
         if(celda.tipo == 'pregunta'){
@@ -50,7 +56,7 @@ function desplegarRegistro(estructura, formulario, titulo, matriz){
                     if(tabla){
                         var row = tabla.insertRow(-1);
                         row.className="fila-editable";
-                        desplegarRegistro(estructura, formulario, null, true).forEach(function(cell){
+                        desplegarRegistro(almacen, estructura, formulario, null, true).forEach(function(cell){
                             row.appendChild(cell.create());
                         });
                     }
@@ -61,7 +67,7 @@ function desplegarRegistro(estructura, formulario, titulo, matriz){
         }
         if(celda.tipo == 'matriz'){
             filasMatrices.push(html.tr([html.td({"class": "matriz", colspan: 999}, [
-                desplegarRegistro(estructura, celda.matriz, celda.matriz, true)
+                desplegarRegistro(almacen, estructura, celda.matriz, celda.matriz, true)
             ])]));
         }
     });
@@ -79,9 +85,16 @@ function desplegarRegistro(estructura, formulario, titulo, matriz){
 
 function desplegar(estructura, formulario, titulo){
     central.innerHTML="";
-    var x=desplegarRegistro(estructura, formulario, titulo).create();
-    central.appendChild(x);
-    //central.appendChild(desplegarRegistro(estructura, formulario, titulo).create());
+    var almacen={};
+    central.appendChild(desplegarRegistro(almacen, estructura, formulario, titulo).create());
+    var botonGrabar = html.button("grabar").create();
+    botonGrabar.addEventListener('click', function(){
+        result.textContent = JSON.stringify(almacen);
+    });
+    central.appendChild(botonGrabar);
+    central.appendChild(html.div([
+        html.pre({id:"result"}, "cargando...")
+    ]).create());
 }
 
 var pantallas = {
