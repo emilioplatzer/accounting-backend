@@ -25,11 +25,12 @@ function lineaMenu(tipo, href, leyenda){
     ]);
 }
 
-function desplegarRegistro(estructura, formulario, titulo){
+function desplegarRegistro(estructura, formulario, titulo, matriz){
     var filaTitulos=[];
     var filaCeldas=[];
     var filasMatrices=[];
     var valores={};
+    var puedoAgregarFila=!!matriz;
     estructura.formularios[formulario].celdas.forEach(function(celda){
         if(celda.tipo == 'pregunta'){
             filaTitulos.push(html.td({"class": "encabezado", title: celda.texto||''}, celda.pregunta));
@@ -42,21 +43,38 @@ function desplegarRegistro(estructura, formulario, titulo){
             }
             elemento.addEventListener('update', function(){
                 valores[celda.variable] = elemento.getTypedValue();
+                if(puedoAgregarFila){
+                    puedoAgregarFila=false;
+                    var tabla=elemento;
+                    while(tabla && tabla.tagName!='TABLE'){ tabla = tabla.parentNode; };
+                    if(tabla){
+                        var row = tabla.insertRow(-1);
+                        row.className="fila-editable";
+                        desplegarRegistro(estructura, formulario, null, true).forEach(function(cell){
+                            row.appendChild(cell.create());
+                        });
+                    }
+                    elemento.parentNode.parentNode
+                }
             });
             filaCeldas.push(html.td([elemento]));
         }
         if(celda.tipo == 'matriz'){
             filasMatrices.push(html.tr([html.td({"class": "matriz", colspan: 999}, [
-                desplegarRegistro(estructura, celda.matriz, celda.matriz)
+                desplegarRegistro(estructura, celda.matriz, celda.matriz, true)
             ])]));
         }
     });
-    var filas=[
-        html.caption({"class": "caption-editable"}, titulo),
-        html.tr({"class": "fila-encabezados"}, filaTitulos),
-        html.tr({"class": "fila-editable"}, filaCeldas)
-    ].concat(filasMatrices);
-    return html.table(filas);
+    if(!titulo){
+        return filaCeldas;
+    }else{
+        var filas=[
+            html.caption({"class": "caption-editable"}, titulo),
+            html.tr({"class": "fila-encabezados"}, filaTitulos),
+            html.tr({"class": "fila-editable"}, filaCeldas)
+        ].concat(filasMatrices);
+        return html.table(filas);
+    }
 }
 
 function desplegar(estructura, formulario, titulo){
