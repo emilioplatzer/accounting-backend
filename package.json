@@ -1,7 +1,7 @@
 {
   "name": "accounting-backend",
   "description": "simple accounting backend",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "author": "Emilio Platzer <emilioplatzer@gmail.com>",
   "license": "MIT",
   "repository": "emilioplatzer/accounting-backend",
@@ -18,13 +18,13 @@
 
     "accounting-machine": "~0.0.6",
     "ajax-best-promise": "~0.0.7",
-    "backend-plus": "~0.0.7",
+    "backend-plus": "~0.0.8",
     "best-globals": "~0.2.4",
     "best-promise": "~0.2.4",
     "extension-serve-static": "~0.1.6",
     "js-to-html": "~0.9.0",
     "mini-tools": "~0.2.5",
-    "tedede": "~0.1.0"
+    "tedede": "~0.2.0"
   },
   "devDependencies": {
     "expect.js": "~0.3.1",

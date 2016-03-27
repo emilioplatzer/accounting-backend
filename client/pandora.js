@@ -88,10 +88,36 @@ function desplegar(estructura, formulario, titulo){
     var almacen={};
     central.appendChild(desplegarRegistro(almacen, estructura, formulario, titulo).create());
     var botonGrabar = html.button("grabar").create();
+    var botonReintentar = html.button("reintentar").create();
     botonGrabar.addEventListener('click', function(){
-        result.textContent = JSON.stringify(almacen);
+        botonReintentar.style.visibility = 'visible';
+        botonReintentar.textContent = 'grabando...';
+        botonReintentar.disabled = true;
+        setTimeout(function(){ 
+            botonReintentar.disabled = false; 
+            botonReintentar.textContent = "reintentar"
+        },2000);
+        botonGrabar.disabled = true;
+        AjaxBestPromise.post({
+            url:'./agregarAsiento',
+            data:{
+                asiento:JSON.stringify(almacen)
+            }
+        }).then(function(mensaje){
+            result.textContent = "ok: "+mensaje;
+            botonReintentar.style.display = 'none';
+            botonGrabar.style.display = 'none';
+        }).catch(function(err){
+            result.textContent = err;
+        });
     });
     central.appendChild(botonGrabar);
+    botonReintentar.style.visibility = 'hidden';
+    botonReintentar.addEventListener('click', function(){
+        botonGrabar.disabled = false;
+        botonReintentar.style.visibility = 'hidden';
+    });
+    central.appendChild(botonReintentar);
     central.appendChild(html.div([
         html.pre({id:"result"}, "cargando...")
     ]).create());
