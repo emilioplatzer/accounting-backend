@@ -18,7 +18,7 @@
 
     "accounting-machine": "~0.0.6",
     "ajax-best-promise": "~0.0.7",
-    "backend-plus": "~0.0.5",
+    "backend-plus": "~0.0.7",
     "best-globals": "~0.2.4",
     "best-promise": "~0.2.4",
     "extension-serve-static": "~0.1.6",
@@ -30,6 +30,9 @@
     "expect.js": "~0.3.1",
     "istanbul": "~0.4.2",
     "mocha": "~2.4.5"
+  },
+  "optionalDependencies": {
+    "kill-9": "0.3.0"
   },
   "engines": {
     "node": ">= 0.12.0"
