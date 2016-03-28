@@ -94,6 +94,13 @@ class AppAccounting extends backend.AppBackend{
                 MiniTools.serveJson(lista)(req,res);
             }).catch(MiniTools.serveErr(req,res));
         });
+        be.app.post('/obtenerCuentas', function(req,res){
+            Promises.start(function(){
+                return am.obtenerCuentas();
+            }).then(function(lista){
+                MiniTools.serveJson(lista)(req,res);
+            }).catch(MiniTools.serveErr(req,res));
+        });
     }
 }
 

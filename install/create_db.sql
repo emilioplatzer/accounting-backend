@@ -18,12 +18,3 @@ insert into pan.users
   select 'test'||n, md5('clave'||n||'test'||n), 'direct', 'test'
     from generate_series(1,10) n;
 
-create table pan.pandoras(
-  pandora text primary key,
-  username text references pan.users(username),
-  content text,
-  constraint "pandora must be the username" check (pandora=username)
-);
-alter table pan.pandoras owner to pandora_user;
-
-insert into pan.pandoras (pandora, username, content) select username, username, '{"version": "0.0.1"}' from pan."users";

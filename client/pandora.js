@@ -25,7 +25,7 @@ function lineaMenu(tipo, href, leyenda){
     ]);
 }
 
-function desplegarRegistro(almacen, estructura, formulario, titulo, matriz){
+function desplegarRegistro(almacen, metadatos, formulario, titulo, matriz){
     var filaTitulos=[];
     var filaCeldas=[];
     var filasMatrices=[];
@@ -37,10 +37,21 @@ function desplegarRegistro(almacen, estructura, formulario, titulo, matriz){
         almacen[formulario]=valores;
     }
     var puedoAgregarFila=!!matriz;
-    estructura.formularios[formulario].celdas.forEach(function(celda){
+    metadatos.estructura.formularios[formulario].celdas.forEach(function(celda){
         if(celda.tipo == 'pregunta'){
             filaTitulos.push(html.td({"class": "encabezado", title: celda.texto||''}, celda.pregunta));
-            var elemento=Tedede.bestCtrl(celda.typeInfo).create();
+            var elementosExtra=[];
+            if(celda.typeInfo.references){
+                var elemento=html.input({type:"text"}).create();
+                elemento.setAttribute('list', "list-"+celda.typeInfo.references);
+                elementosExtra.push(html.datalist({id:"list-"+celda.typeInfo.references},
+                    metadatos.listas[celda.typeInfo.references].map(function(registro){
+                        return html.option({value:registro[celda.variable]});
+                    })
+                ));
+            }else{
+                var elemento=Tedede.bestCtrl(celda.typeInfo).create();
+            }
             Tedede.adaptElement(elemento, celda.typeInfo);
             if(celda.typeInfo.clase){
                 elemento.classList.add(celda.typeInfo.clase);
@@ -56,18 +67,18 @@ function desplegarRegistro(almacen, estructura, formulario, titulo, matriz){
                     if(tabla){
                         var row = tabla.insertRow(-1);
                         row.className="fila-editable";
-                        desplegarRegistro(almacen, estructura, formulario, null, true).forEach(function(cell){
+                        desplegarRegistro(almacen, metadatos, formulario, null, true).forEach(function(cell){
                             row.appendChild(cell.create());
                         });
                     }
                     elemento.parentNode.parentNode
                 }
             });
-            filaCeldas.push(html.td([elemento]));
+            filaCeldas.push(html.td([elemento].concat(elementosExtra)));
         }
         if(celda.tipo == 'matriz'){
             filasMatrices.push(html.tr([html.td({"class": "matriz", colspan: 999}, [
-                desplegarRegistro(almacen, estructura, celda.matriz, celda.matriz, true)
+                desplegarRegistro(almacen, metadatos, celda.matriz, celda.matriz, true)
             ])]));
         }
     });
@@ -83,10 +94,10 @@ function desplegarRegistro(almacen, estructura, formulario, titulo, matriz){
     }
 }
 
-function desplegar(estructura, formulario, titulo){
+function desplegar(metadatos, formulario, titulo){
     central.innerHTML="";
     var almacen={};
-    central.appendChild(desplegarRegistro(almacen, estructura, formulario, titulo).create());
+    central.appendChild(desplegarRegistro(almacen, metadatos, formulario, titulo).create());
     var botonGrabar = html.button("grabar").create();
     var botonReintentar = html.button("reintentar").create();
     botonGrabar.addEventListener('click', function(){
@@ -177,6 +188,33 @@ function traerListado(url, adaptarParametros, detalle){
     }
 }
 
+var metadatos=null;
+
+function leerMetadatos(){
+    var trayendo={};
+    if(metadatos){
+        return Promise.resolve(metadatos);
+    }
+    return Promise.resolve().then(function(){
+        return AjaxBestPromise.get({
+            url:'structure/asiento',
+            data:{}
+        });
+    }).then(JSON.parse).then(function(estructura){
+        trayendo.estructura=estructura;
+        return AjaxBestPromise.post({
+            url:'obtenerCuentas',
+            data:{}
+        });
+    }).then(JSON.parse).then(function(cuentas){
+        trayendo.listas={
+            cuentas: cuentas
+        };
+        metadatos = trayendo;
+        return metadatos;
+    })
+}
+
 var pantallas = {
     menu: {desplegar: function(){
         central.innerHTML="";
@@ -196,18 +234,14 @@ var pantallas = {
         central.appendChild(html.div([
             html.pre({id:"result"}, "cargando...")
         ]).create());
-        AjaxBestPromise.get({
-            url:'structure/asiento',
-            data:{}
-        }).then(JSON.parse).then(function(estructura){
-            result.textContent='mostrando...';
-            desplegar(estructura, 'encabezado', "Crear nuevo asiento");
+        leerMetadatos().then(function(metadatos){
+            desplegar(metadatos, 'encabezado', "Crear nuevo asiento");
         },function(err){
             result.textContent=err;
         });
     }},
     reporte: {desplegar: traerListado('obtenerSaldos', function(p){ return JSON.stringify(p.split(',')) }, 'cuenta')},
-    cuenta: {desplegar: traerListado('obtenerCuenta', function(x){ return x})},
+    cuenta:  {desplegar: traerListado('obtenerCuenta', function(x){ return x})},
 }
 
 function hashchangeListener(when){
