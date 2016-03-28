@@ -124,20 +124,20 @@ function desplegar(estructura, formulario, titulo){
 }
 
 var pantallas = {
-    menu: function(){
+    menu: {desplegar: function(){
         central.innerHTML="";
         central.appendChild(html.div([
             html.h1("menú principal"),
             lineaMenu('mod', '#agregarAsiento', 'Crear nuevo asiento'),
-            lineaMenu('lis', '#reporte', 'Saldos del libro mayor'),
+            lineaMenu('lis', '#reporte:cuenta', 'Saldos del libro mayor'),
             lineaMenu('mod', '#agregarAsiento', 'actores'),
-            lineaMenu('lis', '#reporte', 'Saldos de cuentas corrientes'),
-            lineaMenu('mod', '#reporte', 'Plan de producción'),
-            lineaMenu('lis', '#reporte', 'Inventario'),
+            lineaMenu('lis', '#reporte:cuenta,actor', 'Saldos de cuentas corrientes'),
+            lineaMenu('mod', '#reporte:cuenta,concepto', 'Plan de producción'),
+            lineaMenu('lis', '#reporte:cuenta,concepto', 'Inventario'),
             lineaMenu('red', './login', 'Salir (logout)'),
         ]).create());
-    },
-    agregarAsiento: function(){
+    }},
+    agregarAsiento: {desplegar: function(){
         central.innerHTML="";
         central.appendChild(html.div([
             html.pre({id:"result"}, "cargando...")
@@ -146,18 +146,27 @@ var pantallas = {
             url:'structure/asiento',
             data:{}
         }).then(JSON.parse).then(function(estructura){
-            result.innerText='mostrando...';
+            result.textContent='mostrando...';
             desplegar(estructura, 'encabezado', "Crear nuevo asiento");
         },function(err){
-            result.innerText=err;
+            result.textContent=err;
         });
-    },
-    reporte: function(){
+    }},
+    reporte: {desplegar: function(parametros){
         central.innerHTML="";
         central.appendChild(html.div([
-            html.pre("cargando...")
+            html.pre({id:"result"}, "cargando..."),
         ]).create());
-    }
+        AjaxBestPromise.post({
+            url:'obtenerSaldos',
+            data:{parametros:JSON.stringify(parametros)}
+        }).then(JSON.parse).then(function(reporte){
+            result.textContent='mostrando...';
+            result.textContent+='\n'+JSON.stringify(reporte);
+        },function(err){
+            result.textContent=err;
+        });
+    }}
 }
 
 function hashchangeListener(when){
@@ -165,8 +174,10 @@ function hashchangeListener(when){
         if(!window.location.hash){
             window.location.hash='#menu';
         }else{
-            var pantalla=window.location.hash.split(':')[0];
-            pantallas[pantalla.substr(1)]();
+            var partes=window.location.hash.split(':');
+            var pantalla=partes[0];
+            var parametros=partes[1]?partes[1].split(','):[];
+            pantallas[pantalla.substr(1)].desplegar(parametros);
         }
     }
 }

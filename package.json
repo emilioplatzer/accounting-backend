@@ -24,6 +24,7 @@
     "extension-serve-static": "~0.1.6",
     "js-to-html": "~0.9.0",
     "mini-tools": "~0.2.5",
+    "promise-plus": "~0.0.6",
     "tedede": "~0.2.0"
   },
   "devDependencies": {
