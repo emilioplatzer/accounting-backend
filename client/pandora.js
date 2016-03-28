@@ -162,7 +162,25 @@ var pantallas = {
             data:{parametros:JSON.stringify(parametros)}
         }).then(JSON.parse).then(function(reporte){
             result.textContent='mostrando...';
-            result.textContent+='\n'+JSON.stringify(reporte);
+            var celdasTitulo=[];
+            var primeraLinea=true;
+            var filas=[];
+            reporte.forEach(function(renglon){
+                var celdasListado=[];
+                for(var campo in renglon){
+                    if(primeraLinea){
+                        celdasTitulo.push(html.th(campo));
+                    }
+                    celdasListado.push(html.td({"class": "campo-"+campo}, ""+(renglon[campo]||'')));
+                }
+                if(primeraLinea){
+                    filas.push(html.tr(celdasTitulo));
+                    primeraLinea=false;
+                }
+                filas.push(html.tr(celdasListado));
+            });
+            central.innerHTML="";
+            central.appendChild(html.table({"class": "listado"}, filas).create());
         },function(err){
             result.textContent=err;
         });
