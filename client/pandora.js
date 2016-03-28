@@ -37,6 +37,7 @@ function desplegarRegistro(almacen, metadatos, formulario, titulo, matriz){
         almacen[formulario]=valores;
     }
     var puedoAgregarFila=!!matriz;
+    var camposDeLaFila={};
     metadatos.estructura.formularios[formulario].celdas.forEach(function(celda){
         if(celda.tipo == 'pregunta'){
             filaTitulos.push(html.td({"class": "encabezado", title: celda.texto||''}, celda.pregunta));
@@ -74,6 +75,31 @@ function desplegarRegistro(almacen, metadatos, formulario, titulo, matriz){
                     elemento.parentNode.parentNode
                 }
             });
+            if(formulario=='renglones' && celda.variable!='cuenta'){
+                elemento.disabled=!!celda.filtroc;
+            }
+            if(formulario=='renglones' && celda.variable=='cuenta'){
+                elemento.addEventListener('focusout',function(){
+                    var valor = elemento.getTypedValue();
+                    if(valor){
+                        if(valor.toUpperCase()!==valor){
+                            valor = valor.toUpperCase();
+                            elemento.setTypedValue(valor);
+                        }
+                        var registro_cuenta = metadatos.tablas.cuentas[valor];
+                        for(var nombreCampo in camposDeLaFila){
+                            var elementoCampo = camposDeLaFila[nombreCampo];
+                            if(registro_cuenta){
+                                elementoCampo.disabled=!!elementoCampo.filtroc && !registro_cuenta[elementoCampo.filtroc];
+                            }else if(nombre_campo!='cuenta'){
+                                elementoCampo.disabled=true;
+                            }
+                        }
+                    }
+                });
+            }
+            elemento.filtroc=celda.filtroc;
+            camposDeLaFila[celda.variable] = elemento;
             filaCeldas.push(html.td([elemento].concat(elementosExtra)));
         }
         if(celda.tipo == 'matriz'){
@@ -210,6 +236,12 @@ function leerMetadatos(){
         trayendo.listas={
             cuentas: cuentas
         };
+        trayendo.tablas={
+            cuentas: {}
+        };
+        cuentas.forEach(function(registro_cuenta){
+            trayendo.tablas.cuentas[registro_cuenta.cuenta]=registro_cuenta;
+        });
         metadatos = trayendo;
         return metadatos;
     })
