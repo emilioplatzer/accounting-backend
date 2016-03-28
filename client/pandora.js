@@ -123,6 +123,60 @@ function desplegar(estructura, formulario, titulo){
     ]).create());
 }
 
+function desplegarListado(reporte,detalle){
+    var celdasTitulo=[];
+    var primeraLinea=true;
+    var filas=[];
+    var acumulado=0;
+    reporte.forEach(function(renglon){
+        var celdasListado=[];
+        for(var campo in renglon){
+            if(primeraLinea){
+                celdasTitulo.push(html.th(campo));
+            }
+            var valor=""+(renglon[campo]||'');
+            if(campo=='fecha' || campo=='vencimiento'){
+                valor=valor.split('T')[0];
+                valor=valor.split('-').reverse().join('/');
+            }
+            if(campo=='acumulado'){
+                acumulado-=-valor;
+                valor=acumulado;
+            }
+            celdasListado.push(html.td({"class": "campo-"+campo}, valor));
+        }
+        if(primeraLinea){
+            filas.push(html.tr(celdasTitulo));
+            primeraLinea=false;
+        }
+        delete renglon.saldo;
+        if(detalle){
+            celdasListado.push(html.td([html.a({href:'#'+detalle+':'+JSON.stringify(renglon), title: "ver detalle"}, "\u21d2")])); // ⇒
+        }
+        filas.push(html.tr(celdasListado));
+    });
+    central.innerHTML="";
+    central.appendChild(html.table({"class": "listado"}, filas).create());
+}
+
+function traerListado(url, adaptarParametros, detalle){
+    return function(parametros){
+        central.innerHTML="";
+        central.appendChild(html.div([
+            html.pre({id:"result"}, "cargando..."),
+        ]).create());
+        AjaxBestPromise.post({
+            url:url,
+            data:{parametros:adaptarParametros(parametros)}
+        }).then(JSON.parse).then(function(reporte){
+            result.textContent='mostrando...';
+            desplegarListado(reporte, detalle);
+        },function(err){
+            result.textContent=err;
+        });
+    }
+}
+
 var pantallas = {
     menu: {desplegar: function(){
         central.innerHTML="";
@@ -152,39 +206,8 @@ var pantallas = {
             result.textContent=err;
         });
     }},
-    reporte: {desplegar: function(parametros){
-        central.innerHTML="";
-        central.appendChild(html.div([
-            html.pre({id:"result"}, "cargando..."),
-        ]).create());
-        AjaxBestPromise.post({
-            url:'obtenerSaldos',
-            data:{parametros:JSON.stringify(parametros)}
-        }).then(JSON.parse).then(function(reporte){
-            result.textContent='mostrando...';
-            var celdasTitulo=[];
-            var primeraLinea=true;
-            var filas=[];
-            reporte.forEach(function(renglon){
-                var celdasListado=[];
-                for(var campo in renglon){
-                    if(primeraLinea){
-                        celdasTitulo.push(html.th(campo));
-                    }
-                    celdasListado.push(html.td({"class": "campo-"+campo}, ""+(renglon[campo]||'')));
-                }
-                if(primeraLinea){
-                    filas.push(html.tr(celdasTitulo));
-                    primeraLinea=false;
-                }
-                filas.push(html.tr(celdasListado));
-            });
-            central.innerHTML="";
-            central.appendChild(html.table({"class": "listado"}, filas).create());
-        },function(err){
-            result.textContent=err;
-        });
-    }}
+    reporte: {desplegar: traerListado('obtenerSaldos', function(p){ return JSON.stringify(p.split(',')) }, 'cuenta')},
+    cuenta: {desplegar: traerListado('obtenerCuenta', function(x){ return x})},
 }
 
 function hashchangeListener(when){
@@ -192,10 +215,15 @@ function hashchangeListener(when){
         if(!window.location.hash){
             window.location.hash='#menu';
         }else{
-            var partes=window.location.hash.split(':');
-            var pantalla=partes[0];
-            var parametros=partes[1]?partes[1].split(','):[];
-            pantallas[pantalla.substr(1)].desplegar(parametros);
+            var dospuntos=window.location.hash.indexOf(':');
+            if(dospuntos>0){
+                var pantalla=window.location.hash.substr(1,dospuntos-1);
+                var parametros=window.location.hash.substr(dospuntos+1);
+            }else{
+                var pantalla=window.location.hash.substr(1);
+                var parametros=null;
+            }
+            pantallas[pantalla].desplegar(parametros);
         }
     }
 }

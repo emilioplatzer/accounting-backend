@@ -6,6 +6,7 @@
 // APP
 
 var extensionServeStatic = require('extension-serve-static');
+var _ = require('lodash');
 
 // var Promises = require('best-promise');
 
@@ -15,6 +16,7 @@ var MiniTools = require("mini-tools");
 var Promises = require("promise-plus");
 
 var AccountingMachine = require('accounting-machine');
+
 
 class AppAccounting extends backend.AppBackend{
     configList(){
@@ -42,10 +44,8 @@ class AppAccounting extends backend.AppBackend{
         var am = new (AccountingMachine.Machine)(be.config);
         be.app.use('/',extensionServeStatic(this.rootPath+'client',{staticExtensions:['jpg','png','html','gif']}));
         be.app.get('/structure/asiento', function(req,res){
-            console.log('estructurando...');
             be.registroVacio = {};
             be.obtenerEstructura().then(function(estructura){
-                console.log('leyo la estructura...');
                 MiniTools.serveJson(estructura)(req,res);
             }).catch(MiniTools.serveErr(req,res));
         });
@@ -75,8 +75,21 @@ class AppAccounting extends backend.AppBackend{
                         throw new Error('parametro invalido para el corte de obtenerSaldos');
                     }
                 });
-                console.log('por preguntar',parametros);
                 return am.obtenerSaldos(parametros)
+            }).then(function(lista){
+                MiniTools.serveJson(lista)(req,res);
+            }).catch(MiniTools.serveErr(req,res));
+        });
+        be.app.post('/obtenerCuenta', function(req,res){
+            var parametros = JSON.parse(req.body.parametros);
+            be.obtenerEstructura().then(function(){
+                _.forEach(parametros, function(valor, parametro){
+                    if(be.estructura.formularios.renglones.celdas.filter(function(celda){
+                        return celda.tipo=='pregunta' && celda.variable==parametro;
+                    }).length>0){
+                    }
+                });
+                return am.obtenerCuenta(parametros);
             }).then(function(lista){
                 MiniTools.serveJson(lista)(req,res);
             }).catch(MiniTools.serveErr(req,res));
