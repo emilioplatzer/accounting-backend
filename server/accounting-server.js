@@ -5,6 +5,11 @@
 
 // APP
 
+if(process.argv[2]=='--dir'){
+    process.chdir(process.argv[3]);
+    console.log('cwd',process.cwd());
+}
+
 var extensionServeStatic = require('extension-serve-static');
 var _ = require('lodash');
 
