@@ -42,6 +42,10 @@ function desplegarRegistro(almacen, metadatos, formulario, titulo, matriz){
         if(celda.tipo == 'pregunta'){
             filaTitulos.push(html.td({"class": "encabezado", title: celda.texto||''}, celda.pregunta));
             var elementosExtra=[];
+            if(celda.variable=='fecha' && formulario=='encabezado'){
+                var now=new Date();
+                valores.fecha = new Date(now.getFullYear(),now.getMonth(),now.getDate())
+            }
             if(celda.typeInfo.references){
                 var elemento=html.input({type:"text"}).create();
                 elemento.setAttribute('list', "list-"+celda.typeInfo.references);
@@ -54,6 +58,10 @@ function desplegarRegistro(almacen, metadatos, formulario, titulo, matriz){
                 var elemento=Tedede.bestCtrl(celda.typeInfo).create();
             }
             Tedede.adaptElement(elemento, celda.typeInfo);
+            if(celda.variable=='asiento' && formulario=='encabezado'){
+                elemento.autofocus=true;
+            }
+            elemento.setTypedValue(valores[celda.variable]||null);
             if(celda.typeInfo.clase){
                 elemento.classList.add(celda.typeInfo.clase);
             }else{

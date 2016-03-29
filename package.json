@@ -1,7 +1,7 @@
 {
   "name": "accounting-backend",
   "description": "simple accounting backend",
-  "version": "0.0.7",
+  "version": "0.1.0",
   "author": "Emilio Platzer <emilioplatzer@gmail.com>",
   "license": "MIT",
   "repository": "emilioplatzer/accounting-backend",
@@ -17,7 +17,7 @@
     "read-yaml-promise": "~1.0.2",
     "stylus": "~0.54.2",
 
-    "accounting-machine": "~0.0.8",
+    "accounting-machine": "~0.1.0",
     "ajax-best-promise": "~0.0.7",
     "backend-plus": "~0.0.9",
     "best-globals": "~0.2.4",
