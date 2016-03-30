@@ -25,18 +25,12 @@ function lineaMenu(tipo, href, leyenda){
     ]);
 }
 
-function desplegarRegistro(almacen, metadatos, formulario, titulo, matriz){
+function desplegarRegistro(almacen, metadatos, formulario, titulo, renglonMatriz){
     var filaTitulos=[];
     var filaCeldas=[];
     var filasMatrices=[];
-    var valores={};
-    if(matriz || almacen[formulario] instanceof Array){
-        almacen[formulario]=almacen[formulario]||[];
-        almacen[formulario].push(valores);
-    }else{
-        almacen[formulario]=valores;
-    }
-    var puedoAgregarFila=!!matriz;
+    var valores=renglonMatriz==null?almacen[formulario]:almacen[formulario][renglonMatriz];
+    var puedoAgregarFila=renglonMatriz!=null;
     var camposDeLaFila={};
     metadatos.estructura.formularios[formulario].celdas.forEach(function(celda){
         if(celda.tipo == 'pregunta'){
@@ -61,6 +55,9 @@ function desplegarRegistro(almacen, metadatos, formulario, titulo, matriz){
             if(celda.variable=='asiento' && formulario=='encabezado'){
                 elemento.autofocus=true;
             }
+            if(celda.typeInfo.typeName==='number'){
+                valores[celda.variable]=valores[celda.variable]-0;
+            }
             elemento.setTypedValue(valores[celda.variable]||null);
             if(celda.typeInfo.clase){
                 elemento.classList.add(celda.typeInfo.clase);
@@ -76,7 +73,8 @@ function desplegarRegistro(almacen, metadatos, formulario, titulo, matriz){
                     if(tabla){
                         var row = tabla.insertRow(-1);
                         row.className="fila-editable";
-                        desplegarRegistro(almacen, metadatos, formulario, null, true).forEach(function(cell){
+                        almacen[formulario].push({});
+                        desplegarRegistro(almacen, metadatos, formulario, null, almacen[formulario].length-1).forEach(function(cell){
                             row.appendChild(cell.create());
                         });
                     }
@@ -111,27 +109,28 @@ function desplegarRegistro(almacen, metadatos, formulario, titulo, matriz){
             filaCeldas.push(html.td([elemento].concat(elementosExtra)));
         }
         if(celda.tipo == 'matriz'){
-            filasMatrices.push(html.tr([html.td({"class": "matriz", colspan: 999}, [
-                desplegarRegistro(almacen, metadatos, celda.matriz, celda.matriz, true)
-            ])]));
+            filasMatrices.push(html.tr([html.td({"class": "matriz", colspan: 999}, [html.table(almacen[celda.matriz].reduce(function(list, valores, idx){
+                return list.concat(desplegarRegistro(almacen, metadatos, celda.matriz, celda.matriz, idx))
+            },[]))])]));
         }
     });
     if(!titulo){
         return filaCeldas;
     }else{
-        var filas=[
-            html.caption({"class": "caption-editable"}, titulo),
-            html.tr({"class": "fila-encabezados"}, filaTitulos),
-            html.tr({"class": "fila-editable"}, filaCeldas)
-        ].concat(filasMatrices);
-        return html.table(filas);
+        var filas=[];
+        if(!renglonMatriz){
+            filas.push(html.caption({"class": "caption-editable"}, titulo));
+            filas.push(html.tr({"class": "fila-encabezados"}, filaTitulos));
+        }
+        filas.push(html.tr({"class": "fila-editable"}, filaCeldas));
+        filas=filas.concat(filasMatrices);
+        return filas;
     }
 }
 
-function desplegar(metadatos, formulario, titulo){
+function desplegar(almacen, metadatos, formulario, titulo){
     central.innerHTML="";
-    var almacen={};
-    central.appendChild(desplegarRegistro(almacen, metadatos, formulario, titulo).create());
+    central.appendChild(html.table(desplegarRegistro(almacen, metadatos, formulario, titulo)).create());
     var botonGrabar = html.button("grabar").create();
     var botonReintentar = html.button("reintentar").create();
     botonGrabar.addEventListener('click', function(){
@@ -176,6 +175,7 @@ function desplegarListado(reporte,detalle){
     reporte.forEach(function(renglon){
         var celdasListado=[];
         for(var campo in renglon){
+            if(campo=='asi') continue;
             if(primeraLinea){
                 celdasTitulo.push(html.th(campo));
             }
@@ -197,6 +197,9 @@ function desplegarListado(reporte,detalle){
         delete renglon.saldo;
         if(detalle){
             celdasListado.push(html.td([html.a({href:'#'+detalle+':'+JSON.stringify(renglon), title: "ver detalle"}, "\u21d2")])); // ⇒
+        }
+        if(renglon.asiento||renglon.asi){
+            celdasListado.push(html.td([html.a({href:'#asiento:'+(renglon.asiento||renglon.asi), title: "ver asiento"}, "a")])); 
         }
         filas.push(html.tr(celdasListado));
     });
@@ -255,6 +258,53 @@ function leerMetadatos(){
     })
 }
 
+function refechar(registro){
+    ['fecha', 'vencimiento'].forEach(function(nombreCampo){
+        if(typeof registro[nombreCampo] == "string"){ 
+            console.log(registro[nombreCampo]);
+            registro[nombreCampo] = new Date(registro[nombreCampo].replace('Z',' GMT-0300').replace('T',' ')); 
+        }
+    });
+}
+
+function desplegarAsiento(asiento){
+    var metadatos;
+    central.innerHTML="";
+    central.appendChild(html.div([
+        html.pre({id:"result"}, "cargando...")
+    ]).create());
+    leerMetadatos().then(function(_metadatos){
+        metadatos = _metadatos;
+        if(asiento){
+            return AjaxBestPromise.get({
+                url:'asiento',
+                data:{asiento: asiento},
+            }).then(JSON.parse).then(function(almacen){
+                refechar(almacen.encabezado);
+                almacen.renglones.forEach(refechar);
+                return almacen;
+            });
+        }else{
+            var almacen={};
+            /*
+            for(var formulario in metadatos.estructura.formularios){
+                var registro={};
+                metadatos.estructura.formularios[formulario].celdas.forEach(function(celda){
+                    if(celda.tipo == 'pregunta'){
+                        registro[celda.variable]=null;
+                    }
+                });
+                almacen[formulario]
+            */
+            return {encabezado:{}, renglones:[{}]}
+        }
+    }).then(function(almacen){
+        desplegar(almacen, metadatos, 'encabezado', asiento?'asiento: '+asiento:"Crear nuevo asiento");
+    },function(err){
+        result.textContent=err;
+    });
+}
+    
 var pantallas = {
     menu: {desplegar: function(){
         central.innerHTML="";
@@ -270,20 +320,11 @@ var pantallas = {
             lineaMenu('red', './login', 'Salir (logout)'),
         ]).create());
     }},
-    agregarAsiento: {desplegar: function(){
-        central.innerHTML="";
-        central.appendChild(html.div([
-            html.pre({id:"result"}, "cargando...")
-        ]).create());
-        leerMetadatos().then(function(metadatos){
-            desplegar(metadatos, 'encabezado', "Crear nuevo asiento");
-        },function(err){
-            result.textContent=err;
-        });
-    }},
+    agregarAsiento: {desplegar: desplegarAsiento},
     reporte: {desplegar: traerListado('obtenerSaldos', function(p){ return JSON.stringify(p.split(',')) }, 'cuenta')},
     cuenta:  {desplegar: traerListado('obtenerCuenta', function(x){ return x})},
-    ultimosAsientos: {desplegar: traerListado('ultimosAsientos', function(p){ return JSON.stringify((p||'').split(',')) }) }
+    ultimosAsientos: {desplegar: traerListado('ultimosAsientos', function(p){ return JSON.stringify((p||'').split(',')) }) },
+    asiento: {desplegar: desplegarAsiento}
 }
 
 function hashchangeListener(when){

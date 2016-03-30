@@ -113,6 +113,13 @@ class AppAccounting extends backend.AppBackend{
                 MiniTools.serveJson(lista)(req,res);
             }).catch(MiniTools.serveErr(req,res));
         });
+        be.app.get('/asiento', function(req,res){
+            Promises.start(function(){
+                return am.asiento(req.query.asiento);
+            }).then(function(lista){
+                MiniTools.serveJson(lista)(req,res);
+            }).catch(MiniTools.serveErr(req,res));
+        });
     }
 }
 
