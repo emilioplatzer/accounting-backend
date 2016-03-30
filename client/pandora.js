@@ -266,6 +266,7 @@ var pantallas = {
             lineaMenu('lis', '#reporte:cuenta,actor', 'Saldos de cuentas corrientes'),
             lineaMenu('mod', '#reporte:cuenta,concepto', 'Plan de producción'),
             lineaMenu('lis', '#reporte:cuenta,concepto', 'Inventario'),
+            lineaMenu('aud', '#ultimosAsientos', 'Últimos asientos cargados'),
             lineaMenu('red', './login', 'Salir (logout)'),
         ]).create());
     }},
@@ -282,6 +283,7 @@ var pantallas = {
     }},
     reporte: {desplegar: traerListado('obtenerSaldos', function(p){ return JSON.stringify(p.split(',')) }, 'cuenta')},
     cuenta:  {desplegar: traerListado('obtenerCuenta', function(x){ return x})},
+    ultimosAsientos: {desplegar: traerListado('ultimosAsientos', function(p){ return JSON.stringify((p||'').split(',')) }) }
 }
 
 function hashchangeListener(when){
