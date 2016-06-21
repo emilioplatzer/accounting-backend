@@ -54,6 +54,7 @@ function desplegarRegistro(almacen, metadatos, formulario, titulo, renglonMatriz
             Tedede.adaptElement(elemento, celda.typeInfo);
             if(celda.variable=='asiento' && formulario=='encabezado'){
                 elemento.autofocus=true;
+                elemento.placeholder='auto';
             }
             if(celda.typeInfo.typeName==='number'){
                 valores[celda.variable]=valores[celda.variable]-0;
@@ -66,7 +67,7 @@ function desplegarRegistro(almacen, metadatos, formulario, titulo, renglonMatriz
             }
             elemento.addEventListener('update', function(){
                 valores[celda.variable] = elemento.getTypedValue();
-                if(puedoAgregarFila){
+                if(puedoAgregarFila && false){
                     puedoAgregarFila=false;
                     var tabla=elemento;
                     while(tabla && tabla.tagName!='TABLE'){ tabla = tabla.parentNode; };
@@ -109,9 +110,46 @@ function desplegarRegistro(almacen, metadatos, formulario, titulo, renglonMatriz
             filaCeldas.push(html.td([elemento].concat(elementosExtra)));
         }
         if(celda.tipo == 'matriz'){
-            filasMatrices.push(html.tr([html.td({"class": "matriz", colspan: 999}, [html.table(almacen[celda.matriz].reduce(function(list, valores, idx){
-                return list.concat(desplegarRegistro(almacen, metadatos, celda.matriz, celda.matriz, idx))
-            },[]))])]));
+            var buttonAddRow=html.button([html.img({src:"sign-plus.png"})]).create();
+            var buttonTransport=html.button([html.img({src:"sign-transport-up.png"})]).create();
+            var spanDif=html.span("0").create();
+            var thTranslate=html.th({"class":"big-sign"},[spanDif]).create();
+            var innerTable=html.table([
+                html.tbody(
+                    almacen[celda.matriz].reduce(function(list, valores, idx){
+                        return list.concat(
+                            desplegarRegistro(almacen, metadatos, celda.matriz, celda.matriz, idx)
+                        );
+                    },[])
+                ),
+                html.tfoot([
+                    html.tr([
+                        html.th({"class":"big-sign","style":"text-align:left"},[buttonAddRow]),
+                        /* html.th(),
+                        html.th(),
+                        html.th({"class":"big-sign","style":"text-align:right"},"dif:"),
+                        thTranslate,*/
+                    ])
+                ])
+            ]).create();
+            filasMatrices.push(html.tr([html.td({"class": "matriz", colspan: 999}, [innerTable])]));
+            if(puedoAgregarFila || true){
+                buttonAddRow.addEventListener('click',function(){
+                    var row = innerTable.tBodies[0].insertRow(-1);
+                    row.className="fila-editable";
+                    almacen[celda.matriz].push({});
+                    desplegarRegistro(almacen, metadatos, celda.matriz, null, almacen[celda.matriz].length-1).forEach(function(cell){
+                        row.appendChild(cell.create());
+                    });
+                    row.cells[1].firstChild.focus();
+                });
+                thTranslate.addEventListener('click', function(){
+                    var target = innerTable.tBodies[0].rows[innerTable.tBodies[0].rows.length-1][4].firstChild;
+                    target.setTypedValue(Number(spanDif.innerText));
+                    target.focus();
+                });
+            }
+
         }
     });
     if(!titulo){

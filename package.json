@@ -1,50 +1,47 @@
 {
   "name": "accounting-backend",
   "description": "simple accounting backend",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": "Emilio Platzer <emilioplatzer@gmail.com>",
   "license": "MIT",
   "repository": "emilioplatzer/accounting-backend",
   "main": "server/accounting-server.js",
-  "entrypoint": "server/accounting-server.js",
   "dependencies": {
-    "es6-shim": "~0.35.0",
-    "es6-transpiler": "~0.7.18",
-    "fs-extra": "~0.26.7",
+    "express": "~4.13.4",
+    "fs-extra": "~0.30.0",
     "fs-promise": "~0.5.0",
-    "jade": "~1.11.0",
-    "lodash": "~4.6.1",
+    "lodash": "~4.13.1",
+    "pug": "~2.0.0-beta3",
     "read-yaml-promise": "~1.0.2",
-    "stylus": "~0.54.2",
+    "stylus": "~0.54.5",
 
-    "accounting-machine": "~0.1.1",
+    "accounting-machine": "~0.1.2",
     "ajax-best-promise": "~0.0.7",
-    "backend-plus": "~0.0.9",
-    "best-globals": "~0.2.4",
+    "backend-plus": "0.1.2",
+    "best-globals": "~0.4.6",
     "best-promise": "~0.2.4",
     "extension-serve-static": "~0.1.6",
-    "js-to-html": "~0.9.0",
-    "mini-tools": "~0.2.5",
+    "js-to-html": "~0.9.2",
+    "mini-tools": "~0.2.11",
     "promise-plus": "~0.0.6",
-    "tedede": "~0.2.0"
+    "tedede": "~0.2.4"
   },
   "devDependencies": {
     "expect.js": "~0.3.1",
-    "istanbul": "~0.4.2",
-    "mocha": "~2.4.5"
+    "istanbul": "~0.4.3",
+    "mocha": "~2.5.3"
   },
   "optionalDependencies": {
     "kill-9": "0.3.0"
   },
   "engines": {
-    "node": ">= 0.12.0"
+    "node": ">= 4.4"
   },
   "scripts": {
     "test": "mocha --reporter spec --bail --check-leaks test/",
     "test-ci": "istanbul cover node_modules/mocha/bin/_mocha --report lcovonly -- --reporter spec --check-leaks test/",
     "test-cov": "istanbul cover node_modules/mocha/bin/_mocha -- --reporter dot --check-leaks test/",
-    "postinstall": "node node_modules/es6-transpiler/build/es5/es6toes5.js server/accounting-server.js > server-trans/accounting-server.js",
-    "start": "node triage-esV.js"
+    "start": "node server/accounting-server.js"
   },
   "jshintConfig": {
     "asi": false,
@@ -66,7 +63,7 @@
     }
   },
   "qa-control": {
-    "package-version": "0.1.4",
+    "package-version": "0.2.0",
     "coverage": 90,
     "run-in": "server",
     "stability": "extending",
