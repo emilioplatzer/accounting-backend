@@ -7,7 +7,7 @@
   "repository": "emilioplatzer/accounting-backend",
   "main": "server/accounting-server.js",
   "dependencies": {
-    "express": "~4.13.4",
+    "express": "~4.14.0",
     "fs-extra": "~0.30.0",
     "fs-promise": "~0.5.0",
     "lodash": "~4.13.1",
@@ -28,11 +28,11 @@
   },
   "devDependencies": {
     "expect.js": "~0.3.1",
-    "istanbul": "~0.4.3",
+    "istanbul": "~0.4.4",
     "mocha": "~2.5.3"
   },
   "optionalDependencies": {
-    "kill-9": "0.3.0"
+    "kill-9": "0.4.2"
   },
   "engines": {
     "node": ">= 4.4"
